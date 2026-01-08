@@ -15,7 +15,8 @@ export const MSWProvider: FC<MSWProviderProps> = ({ children }) => {
 
   useEffect(() => {
     async function initMSW(): Promise<void> {
-      if (process.env.NODE_ENV === 'development') {
+      // Enable MSW in all environments for demo app (no real backend)
+      if (typeof window !== 'undefined') {
         const { initMocks } = await import('@/mocks/browser');
         await initMocks();
       }
@@ -25,9 +26,8 @@ export const MSWProvider: FC<MSWProviderProps> = ({ children }) => {
     initMSW();
   }, []);
 
-  // In development, wait for MSW to be ready before rendering
-  // In production, render immediately
-  if (process.env.NODE_ENV === 'development' && !mswReady) {
+  // Wait for MSW to be ready before rendering
+  if (!mswReady) {
     return (
       <div className="tw-flex tw-items-center tw-justify-center tw-h-screen tw-bg-obsidian-900">
         <div className="tw-text-obsidian-300 tw-text-sm">Initializing mock services...</div>

@@ -7,9 +7,9 @@ import { handlers } from './handlers';
 
 export const worker = setupWorker(...handlers);
 
-// Initialize MSW in development
+// Initialize MSW for demo app (works in all environments)
 export async function initMocks(): Promise<void> {
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  if (typeof window !== 'undefined') {
     await worker.start({
       onUnhandledRequest: 'bypass',
       serviceWorker: {
