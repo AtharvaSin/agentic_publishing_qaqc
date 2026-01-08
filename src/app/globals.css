@@ -1,0 +1,252 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles */
+@layer base {
+  :root {
+    /* Obsidian Aurora Color Tokens */
+    --color-obsidian-900: #0F1419;
+    --color-obsidian-800: #1A1F2E;
+    --color-obsidian-700: #252A3B;
+    --color-obsidian-600: #374151;
+    --color-obsidian-500: #4B5563;
+    --color-obsidian-400: #6B7280;
+    --color-obsidian-300: #9CA3AF;
+    --color-obsidian-200: #D1D5DB;
+    --color-obsidian-100: #F3F4F6;
+
+    /* Aurora Accent Colors */
+    --color-aurora-cyan: #00D4FF;
+    --color-aurora-purple: #8B5CF6;
+    --color-aurora-pink: #EC4899;
+    --color-aurora-blue: #3B82F6;
+    --color-aurora-teal: #14B8A6;
+
+    /* Status Colors */
+    --color-status-critical: #EF4444;
+    --color-status-high: #EC4899;
+    --color-status-medium: #F59E0B;
+    --color-status-low: #00D4FF;
+    --color-status-success: #10B981;
+    --color-status-info: #3B82F6;
+
+    /* Fluent Brand */
+    --color-fluent-brand: #0078D4;
+    --color-fluent-brand-hover: #106EBE;
+    --color-fluent-brand-pressed: #005A9E;
+
+    /* Semantic tokens */
+    --bg-page: var(--color-obsidian-900);
+    --bg-surface: var(--color-obsidian-800);
+    --bg-surface-secondary: var(--color-obsidian-700);
+    --bg-surface-hover: var(--color-obsidian-600);
+
+    --text-primary: var(--color-obsidian-100);
+    --text-secondary: var(--color-obsidian-300);
+    --text-tertiary: var(--color-obsidian-400);
+    --text-disabled: var(--color-obsidian-500);
+
+    --border-default: var(--color-obsidian-700);
+    --border-subtle: var(--color-obsidian-800);
+    --border-strong: var(--color-obsidian-600);
+
+    --accent-primary: var(--color-aurora-cyan);
+    --accent-secondary: var(--color-aurora-purple);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body {
+    height: 100%;
+    font-family: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system,
+      BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Focus styles - Fluent-inspired */
+  :focus-visible {
+    outline: 2px solid var(--color-aurora-cyan);
+    outline-offset: 2px;
+  }
+
+  /* Selection styles */
+  ::selection {
+    background-color: rgba(0, 212, 255, 0.3);
+    color: var(--text-primary);
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-obsidian-900);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-obsidian-600);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-obsidian-500);
+  }
+}
+
+@layer components {
+  /* Common card styles */
+  .card {
+    @apply tw-bg-obsidian-800 tw-border tw-border-obsidian-700 tw-rounded-fluent-lg tw-shadow-fluent-4;
+  }
+
+  .card-hover {
+    @apply hover:tw-bg-obsidian-700 tw-transition-colors tw-duration-200;
+  }
+
+  /* Button base styles */
+  .btn {
+    @apply tw-inline-flex tw-items-center tw-justify-center tw-gap-2;
+    @apply tw-px-4 tw-py-2 tw-rounded-fluent;
+    @apply tw-text-body tw-font-medium;
+    @apply tw-transition-all tw-duration-200;
+    @apply focus:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-aurora-cyan focus-visible:tw-ring-offset-2 focus-visible:tw-ring-offset-obsidian-900;
+  }
+
+  .btn-primary {
+    @apply tw-bg-fluent-brand tw-text-white;
+    @apply hover:tw-bg-fluent-brand-hover active:tw-bg-fluent-brand-pressed;
+  }
+
+  .btn-secondary {
+    @apply tw-bg-obsidian-700 tw-text-obsidian-100;
+    @apply hover:tw-bg-obsidian-600 active:tw-bg-obsidian-500;
+    @apply tw-border tw-border-obsidian-600;
+  }
+
+  .btn-ghost {
+    @apply tw-bg-transparent tw-text-obsidian-200;
+    @apply hover:tw-bg-obsidian-700 active:tw-bg-obsidian-600;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply tw-inline-flex tw-items-center tw-px-2 tw-py-0.5;
+    @apply tw-text-caption tw-font-medium tw-rounded-full;
+  }
+
+  .badge-success {
+    @apply tw-bg-status-success/20 tw-text-status-success;
+  }
+
+  .badge-warning {
+    @apply tw-bg-status-medium/20 tw-text-status-medium;
+  }
+
+  .badge-error {
+    @apply tw-bg-status-critical/20 tw-text-status-critical;
+  }
+
+  .badge-info {
+    @apply tw-bg-aurora-cyan/20 tw-text-aurora-cyan;
+  }
+
+  /* Table styles */
+  .table-container {
+    @apply tw-overflow-x-auto tw-rounded-fluent-lg tw-border tw-border-obsidian-700;
+  }
+
+  .table {
+    @apply tw-w-full tw-text-body;
+  }
+
+  .table th {
+    @apply tw-text-left tw-px-4 tw-py-3 tw-text-caption tw-font-semibold tw-text-obsidian-300;
+    @apply tw-bg-obsidian-800 tw-border-b tw-border-obsidian-700;
+  }
+
+  .table td {
+    @apply tw-px-4 tw-py-3 tw-border-b tw-border-obsidian-700/50;
+  }
+
+  .table tbody tr {
+    @apply hover:tw-bg-obsidian-700/50 tw-transition-colors;
+  }
+
+  /* Input styles */
+  .input {
+    @apply tw-w-full tw-px-3 tw-py-2 tw-rounded-fluent;
+    @apply tw-bg-obsidian-800 tw-border tw-border-obsidian-600;
+    @apply tw-text-obsidian-100 tw-text-body placeholder:tw-text-obsidian-400;
+    @apply focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-aurora-cyan focus:tw-border-transparent;
+    @apply tw-transition-all tw-duration-200;
+  }
+
+  /* KPI tile styles */
+  .kpi-tile {
+    @apply tw-p-4 tw-rounded-fluent-lg tw-bg-obsidian-800 tw-border tw-border-obsidian-700;
+    @apply tw-flex tw-flex-col tw-gap-2;
+  }
+
+  .kpi-tile-value {
+    @apply tw-text-title tw-font-bold tw-text-obsidian-100;
+  }
+
+  .kpi-tile-label {
+    @apply tw-text-caption tw-text-obsidian-400;
+  }
+
+  .kpi-tile-delta {
+    @apply tw-text-caption tw-font-medium tw-flex tw-items-center tw-gap-1;
+  }
+
+  .kpi-tile-delta-positive {
+    @apply tw-text-status-success;
+  }
+
+  .kpi-tile-delta-negative {
+    @apply tw-text-status-critical;
+  }
+}
+
+@layer utilities {
+  /* Text utilities */
+  .text-gradient-aurora {
+    @apply tw-bg-gradient-to-r tw-from-aurora-cyan tw-via-aurora-purple tw-to-aurora-pink;
+    @apply tw-bg-clip-text tw-text-transparent;
+  }
+
+  /* Glow utilities */
+  .glow-cyan {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+
+  /* Animation utilities */
+  .animate-in {
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
