@@ -10,9 +10,6 @@ export const metadata: Metadata = {
     'Power BI-style operational dashboard for agent publishing health, quality gates, and AI-powered insights',
   keywords: ['agent publishing', 'ops dashboard', 'quality gates', 'Microsoft', 'Copilot'],
   authors: [{ name: 'Store Ops Team' }],
-  icons: {
-    icon: '/favicon.ico',
-  },
 };
 
 export default function RootLayout({
