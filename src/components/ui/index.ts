@@ -29,3 +29,11 @@ export {
   CardSkeleton,
   type SkeletonProps,
 } from './Skeleton';
+export {
+  Dialog,
+  DialogFooter,
+  DialogSection,
+  type DialogProps,
+  type DialogFooterProps,
+  type DialogSectionProps,
+} from './Dialog';

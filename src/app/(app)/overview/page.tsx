@@ -1,17 +1,20 @@
 'use client';
 
 import type { FC } from 'react';
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { SubmissionsTrendChart, FailureCategoriesChart } from '@/components/charts';
 import type { FailureCategoryDataPoint } from '@/components/charts';
-import { useSnapshots } from '@/hooks';
-import { TrendingUp, TrendingDown, Minus, Clock, CheckCircle, AlertTriangle, Shield, Activity } from 'lucide-react';
+import { KPIDetailModal } from '@/components/features/overview';
+import { useSnapshots, useKPIDetailData } from '@/hooks';
+import { TrendingUp, TrendingDown, Minus, Clock, CheckCircle, AlertTriangle, Shield, Activity, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FAILURE_CATEGORY_LABELS, FailureCategory } from '@/lib/constants';
+import { useDateRange } from '@/contexts/FilterContext';
 
-// Mock KPI data
+// KPI data with identifiers for drilldown
 const kpiData = [
   {
     id: 'time-to-publish',
@@ -61,8 +64,9 @@ const kpiData = [
   },
 ];
 
-// KPI Tile Component
+// KPI Tile Component with click handler
 interface KPITileProps {
+  id: string;
   title: string;
   value: string;
   unit?: string | undefined;
@@ -70,13 +74,29 @@ interface KPITileProps {
   delta?: { value: number; direction: 'up' | 'down' | 'neutral' } | undefined;
   status?: 'healthy' | 'warning' | 'critical' | undefined;
   icon?: FC<{ className?: string }> | undefined;
+  onClick?: () => void;
 }
 
-const KPITile: FC<KPITileProps> = ({ title, value, unit, subValue, delta, status = 'healthy', icon: Icon }) => {
+const KPITile: FC<KPITileProps> = ({ title, value, unit, subValue, delta, status = 'healthy', icon: Icon, onClick }) => {
   const DeltaIcon = delta?.direction === 'up' ? TrendingUp : delta?.direction === 'down' ? TrendingDown : Minus;
 
   return (
-    <Card className="tw-relative tw-overflow-hidden">
+    <Card
+      className={cn(
+        'tw-relative tw-overflow-hidden tw-cursor-pointer',
+        'hover:tw-border-aurora-cyan/50 hover:tw-shadow-fluent-8',
+        'tw-transition-all tw-duration-200'
+      )}
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+    >
       <div className="tw-p-4">
         <div className="tw-flex tw-items-start tw-justify-between tw-mb-3">
           <span className="tw-text-caption tw-text-obsidian-400">{title}</span>
@@ -121,37 +141,42 @@ const KPITile: FC<KPITileProps> = ({ title, value, unit, subValue, delta, status
           status === 'critical' && 'tw-bg-status-critical'
         )}
       />
+      {/* Click indicator */}
+      <div className="tw-absolute tw-top-2 tw-right-2 tw-opacity-0 group-hover:tw-opacity-100 tw-transition-opacity">
+        <ExternalLink className="tw-w-3 tw-h-3 tw-text-obsidian-500" />
+      </div>
     </Card>
   );
 };
 
-// At-risk agents mock data
+// At-risk agents mock data with proper IDs
 const atRiskAgents = [
-  { id: 'AGT001', name: 'Sales Assistant Pro', publisher: 'Contoso Ltd', risk: 'SLA Breach', daysInReview: 12, status: 'action_required' },
-  { id: 'AGT002', name: 'HR Helper Bot', publisher: 'Fabrikam Inc', risk: 'RAI Failure', daysInReview: 8, status: 'human_review' },
-  { id: 'AGT003', name: 'Data Insights Agent', publisher: 'Northwind', risk: 'Latency', daysInReview: 6, status: 'action_required' },
-  { id: 'AGT004', name: 'Customer Support AI', publisher: 'Adventure Works', risk: 'Regression', daysInReview: 5, status: 'human_review' },
-  { id: 'AGT005', name: 'Inventory Manager', publisher: 'Contoso Ltd', risk: 'SLA Breach', daysInReview: 10, status: 'action_required' },
+  { id: 'agt_001', name: 'Sales Assistant Pro', publisher: 'Contoso Ltd', risk: 'SLA Breach', daysInReview: 12, status: 'action_required' },
+  { id: 'agt_002', name: 'HR Helper Bot', publisher: 'Fabrikam Inc', risk: 'RAI Failure', daysInReview: 8, status: 'human_review' },
+  { id: 'agt_003', name: 'Data Insights Agent', publisher: 'Northwind', risk: 'Latency', daysInReview: 6, status: 'action_required' },
+  { id: 'agt_004', name: 'Customer Support AI', publisher: 'Adventure Works', risk: 'Regression', daysInReview: 5, status: 'human_review' },
+  { id: 'agt_005', name: 'Inventory Manager', publisher: 'Contoso Ltd', risk: 'SLA Breach', daysInReview: 10, status: 'action_required' },
 ];
 
-/**
- * Generates date range for the last N days
- */
-function getDateRange(days: number): { startDate: string; endDate: string } {
-  const endDate = new Date();
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
-
-  return {
-    startDate: startDate.toISOString().split('T')[0] as string,
-    endDate: endDate.toISOString().split('T')[0] as string,
-  };
-}
-
 export default function OverviewPage(): React.ReactElement {
-  // Get snapshot data for the last 30 days
-  const dateRange = useMemo(() => getDateRange(30), []);
+  const router = useRouter();
+
+  // Modal state
+  const [selectedKPI, setSelectedKPI] = useState<string | null>(null);
+
+  // Get date range from global filter context
+  const { startDate, endDate } = useDateRange();
+
+  // Get snapshot data based on filter selection
+  const dateRange = useMemo(() => ({
+    startDate,
+    endDate,
+  }), [startDate, endDate]);
+
   const { data: snapshotsResponse, isLoading, isError } = useSnapshots(dateRange);
+
+  // Get KPI detail data for the selected KPI
+  const { data: kpiDetailData } = useKPIDetailData(selectedKPI ?? '');
 
   // Transform snapshot data for the submissions trend chart
   const submissionsTrendData = useMemo(() => {
@@ -184,6 +209,33 @@ export default function OverviewPage(): React.ReactElement {
     }));
   }, [snapshotsResponse?.data]);
 
+  // Handlers
+  const handleKPIClick = useCallback((kpiId: string) => {
+    setSelectedKPI(kpiId);
+  }, []);
+
+  const handleKPIModalClose = useCallback((open: boolean) => {
+    if (!open) {
+      setSelectedKPI(null);
+    }
+  }, []);
+
+  const handleViewSubmissionsTrend = useCallback(() => {
+    router.push('/overview/submissions-trend');
+  }, [router]);
+
+  const handleViewFailures = useCallback(() => {
+    router.push('/overview/failures');
+  }, [router]);
+
+  const handleViewAllAtRisk = useCallback(() => {
+    router.push('/overview/at-risk');
+  }, [router]);
+
+  const handleAgentRowClick = useCallback((agentId: string) => {
+    router.push(`/agents/${agentId}`);
+  }, [router]);
+
   return (
     <div className="tw-space-y-6">
       {/* KPI Tiles Strip */}
@@ -192,6 +244,7 @@ export default function OverviewPage(): React.ReactElement {
           {kpiData.map((kpi) => (
             <KPITile
               key={kpi.id}
+              id={kpi.id}
               title={kpi.title}
               value={kpi.value}
               unit={kpi.unit}
@@ -199,6 +252,7 @@ export default function OverviewPage(): React.ReactElement {
               delta={kpi.delta}
               status={kpi.status}
               icon={kpi.icon}
+              onClick={() => handleKPIClick(kpi.id)}
             />
           ))}
         </div>
@@ -212,7 +266,10 @@ export default function OverviewPage(): React.ReactElement {
             title="Submissions vs Approvals"
             subtitle="Daily trend over selected period"
             action={
-              <button className="tw-text-caption tw-text-aurora-cyan hover:tw-underline">
+              <button
+                className="tw-text-caption tw-text-aurora-cyan hover:tw-underline focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-aurora-cyan focus:tw-ring-offset-2 focus:tw-ring-offset-obsidian-800 tw-rounded"
+                onClick={handleViewSubmissionsTrend}
+              >
                 View details →
               </button>
             }
@@ -238,7 +295,10 @@ export default function OverviewPage(): React.ReactElement {
             title="Failure Categories"
             subtitle="Top failure reasons by count"
             action={
-              <button className="tw-text-caption tw-text-aurora-cyan hover:tw-underline">
+              <button
+                className="tw-text-caption tw-text-aurora-cyan hover:tw-underline focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-aurora-cyan focus:tw-ring-offset-2 focus:tw-ring-offset-obsidian-800 tw-rounded"
+                onClick={handleViewFailures}
+              >
                 View details →
               </button>
             }
@@ -267,7 +327,10 @@ export default function OverviewPage(): React.ReactElement {
             title="At-Risk Agents"
             subtitle="Agents requiring attention based on SLA, quality, or compliance"
             action={
-              <button className="tw-text-caption tw-text-aurora-cyan hover:tw-underline">
+              <button
+                className="tw-text-caption tw-text-aurora-cyan hover:tw-underline focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-aurora-cyan focus:tw-ring-offset-2 focus:tw-ring-offset-obsidian-800 tw-rounded"
+                onClick={handleViewAllAtRisk}
+              >
                 View all →
               </button>
             }
@@ -299,6 +362,15 @@ export default function OverviewPage(): React.ReactElement {
                     <tr
                       key={agent.id}
                       className="tw-border-b tw-border-obsidian-700/50 hover:tw-bg-obsidian-700/30 tw-cursor-pointer tw-transition-colors"
+                      onClick={() => handleAgentRowClick(agent.id)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleAgentRowClick(agent.id);
+                        }
+                      }}
                     >
                       <td className="tw-px-4 tw-py-3">
                         <div>
@@ -352,6 +424,16 @@ export default function OverviewPage(): React.ReactElement {
           </CardContent>
         </Card>
       </section>
+
+      {/* KPI Detail Modal */}
+      {selectedKPI && kpiDetailData && (
+        <KPIDetailModal
+          open={!!selectedKPI}
+          onOpenChange={handleKPIModalClose}
+          kpiId={selectedKPI}
+          data={kpiDetailData}
+        />
+      )}
     </div>
   );
 }

@@ -7,7 +7,6 @@ export const DATE_PRESETS = [
   { label: '7 Days', value: '7d', days: 7 },
   { label: '30 Days', value: '30d', days: 30 },
   { label: '60 Days', value: '60d', days: 60 },
-  { label: '90 Days', value: '90d', days: 90 },
 ] as const;
 
 export type DatePresetValue = (typeof DATE_PRESETS)[number]['value'];
@@ -193,7 +192,7 @@ export const CHART_COLORS = {
 
 // Navigation items
 export const NAV_ITEMS = [
-  { label: 'Overview', href: '/overview', icon: 'LayoutDashboard' },
+  { label: 'Dashboard', href: '/overview', icon: 'LayoutDashboard' },
   { label: 'Funnel', href: '/funnel', icon: 'Filter' },
   { label: 'Quality', href: '/quality', icon: 'ShieldCheck' },
   { label: 'Agents', href: '/agents', icon: 'Bot' },

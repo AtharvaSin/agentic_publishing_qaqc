@@ -17,6 +17,7 @@ import {
   StructuredResponse,
   StreamingIndicator,
   ExportActions,
+  QueryInput,
 } from '@/components/features/copilot';
 
 export interface InsightsPaneProps {
@@ -90,6 +91,14 @@ export const InsightsPane: FC<InsightsPaneProps> = ({
   const handleFollowUpClick = useCallback(
     (prompt: string) => {
       processPrompt(prompt);
+    },
+    [processPrompt]
+  );
+
+  // Handle custom query submission
+  const handleCustomQuery = useCallback(
+    (query: string) => {
+      processPrompt(query);
     },
     [processPrompt]
   );
@@ -170,6 +179,18 @@ export const InsightsPane: FC<InsightsPaneProps> = ({
           selectedId={currentPrompt}
           onSelect={handlePromptClick}
           isLoading={isLoading}
+        />
+      </div>
+
+      {/* Custom Query Input */}
+      <div className="tw-px-4 tw-py-3 tw-border-b tw-border-obsidian-700/50">
+        <p className="tw-text-caption tw-text-obsidian-400 tw-mb-2">
+          Or type your question:
+        </p>
+        <QueryInput
+          onSubmit={handleCustomQuery}
+          isLoading={isLoading}
+          placeholder="Ask about your data..."
         />
       </div>
 

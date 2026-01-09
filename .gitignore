@@ -4,6 +4,7 @@
 .playwright-mcp/
 .swarm/
 docs/context/
+CLAUDE.md
 
 # === Dependencies ===
 node_modules/

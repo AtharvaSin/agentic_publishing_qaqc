@@ -829,9 +829,14 @@ Based on submission patterns, focus on improving:
   ]);
 }
 
-function generateSummary(_prompt: string, context: DataContext): AIResponse {
+function generateSummary(prompt: string, context: DataContext): AIResponse {
   const metrics = context.computedMetrics;
   const page = context.currentPage;
+
+  // Check if this is a custom query that didn't match any pattern
+  const knownKeywords = ['summarize', 'summary', 'overview', 'what', 'see', 'show'];
+  const isCustomQuery =
+    prompt.length > 15 && !knownKeywords.some((k) => prompt.toLowerCase().includes(k));
 
   let summary = '';
   const keyDrivers: KeyDriver[] = [];
@@ -876,8 +881,26 @@ Readiness Status:
       summary = `Current view shows ${page} data. Use specific prompts for detailed analysis.`;
   }
 
+  // If this was a custom query, prepend a helpful context message
+  if (isCustomQuery) {
+    const truncatedPrompt = prompt.length > 50 ? prompt.slice(0, 50) + '...' : prompt;
+    summary = `I searched for insights related to "${truncatedPrompt}"
+
+While I don't have a specific analysis for that query, here's the current ${page} status:
+
+${summary}
+
+For more specific analysis, try asking about:
+• Bottlenecks and delays
+• Failure reasons and categories
+• SLA compliance metrics
+• At-risk agents or publishers`;
+  }
+
   keyDrivers.push({
-    driver: 'Use specific prompts for deeper analysis',
+    driver: isCustomQuery
+      ? 'Try using keywords like "bottleneck", "failures", "SLA", or "at-risk"'
+      : 'Use specific prompts for deeper analysis',
     impact: 'low',
   });
 
