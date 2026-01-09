@@ -176,7 +176,6 @@ export function useCopilot(options: UseCopilotOptions): UseCopilotReturn {
         setIsLoading(false);
       });
     } catch (err) {
-      console.error('Copilot error:', err);
       setError(err instanceof Error ? err.message : 'Failed to process prompt');
       setIsLoading(false);
     }

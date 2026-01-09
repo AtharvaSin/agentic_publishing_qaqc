@@ -39,8 +39,7 @@ export const copilotHandlers = [
         success: true,
         data: response,
       } as CopilotApiResponse);
-    } catch (error) {
-      console.error('Copilot handler error:', error);
+    } catch {
       return HttpResponse.json(
         {
           success: false,

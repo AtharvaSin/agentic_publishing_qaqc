@@ -169,7 +169,7 @@ export const KPIDetailModal: FC<KPIDetailModalProps> = ({
   const handleActionClick = useCallback((): void => {
     if (!config) return;
     onOpenChange(false);
-    router.push(config.actionLink.href);
+    router.push(config.actionLink.href as Parameters<typeof router.push>[0]);
   }, [config, onOpenChange, router]);
 
   // Early return after all hooks
